@@ -1,0 +1,18 @@
+# Never publish machine configuration, queue state or real artifacts.
+bridge.local.json
+*.local.json
+.agent-bridge/
+runtime/
+.test-runs/
+dist/
+.env
+.env.*
+*.log
+*.tmp
+*.zip
+*.png
+*.jpg
+.workbuddy/
+.codex/
+.DS_Store
+Thumbs.db

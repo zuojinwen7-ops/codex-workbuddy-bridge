@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex WorkBuddy Bridge"
+  short_description: "通过共享文件队列派工给 WorkBuddy 并独立验收"
+  default_prompt: "用 $codex-workbuddy-bridge 处理当前项目的共享队列任务，保存编号并核验真实成果。"

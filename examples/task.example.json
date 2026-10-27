@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "task_id": "example-hello-001",
+  "created_at": "2026-10-27T09:00:00+08:00",
+  "priority": "normal",
+  "work_dir": "C:\\Projects\\demo",
+  "allowed_scope": ["write_file"],
+  "instruction": "Create hello.txt containing Hello. Modify no other files.",
+  "acceptance_checks": ["Read the real file and verify its content and modification scope."],
+  "context": "Synthetic example only. Use submit-task.ps1 to publish a real task."
+}

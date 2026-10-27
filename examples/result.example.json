@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "task_id": "example-hello-001",
+  "status": "success",
+  "summary": "SYNTHETIC EXAMPLE, NOT A REAL WORKBUDDY RESULT",
+  "artifacts": ["C:\\Projects\\demo\\hello.txt"],
+  "error": null,
+  "started_at": "2026-10-27T09:01:00+08:00",
+  "finished_at": "2026-10-27T09:01:20+08:00",
+  "executor": "WorkBuddy",
+  "provenance": "Executor declaration, not authenticated proof."
+}
