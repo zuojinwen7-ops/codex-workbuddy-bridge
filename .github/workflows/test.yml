@@ -5,14 +5,20 @@ on:
 permissions:
   contents: read
 jobs:
-  test:
+  powershell51:
+    name: Windows PowerShell 5.1
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shell: [powershell, pwsh]
     steps:
       - uses: actions/checkout@v4
       - name: Queue and event tests (no model calls)
-        shell: ${{ matrix.shell }}
+        shell: powershell
         run: .\tests\run-tests.ps1
+  powershell7:
+    name: PowerShell 7
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Queue and event tests (no model calls)
+        shell: pwsh
+        run: .\tests\run-tests.ps1
+
