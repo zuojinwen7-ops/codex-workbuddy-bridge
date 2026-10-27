@@ -65,9 +65,14 @@ try {
     $shellExe = (Get-Process -Id $PID).Path
     $watchArguments = @('-NoProfile','-File',('"' + (Join-Path $scripts 'watch-inbox.ps1') + '"'),'-ConfigPath',('"' + $configPath + '"'),'-TimeoutSeconds','10') -join ' '
     $inboxChild = Start-Process -FilePath $shellExe -ArgumentList $watchArguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runRoot 'inbox-event.out') -RedirectStandardError (Join-Path $runRoot 'inbox-event.err')
+    $null = $inboxChild.Handle # Keep a process handle so ExitCode is available in Windows PowerShell 5.1.
     Start-Sleep -Milliseconds 1000
+    $duplicateInbox = & (Join-Path $scripts 'watch-inbox.ps1') -ConfigPath $configPath -TimeoutSeconds 1 | Out-String
+    Assert-Test 'A second inbox watcher for the same queue exits without waiting' ($duplicateInbox -match 'ALREADY_RUNNING\|')
     & (Join-Path $scripts 'submit-task.ps1') -ConfigPath $configPath -TaskId 'new-event-001' -Instruction 'SYNTHETIC EVENT TEST' -AllowedScope read_file -Checks 'fixture' | Out-Null
-    Assert-Test 'An inbox file event ends the background wait' ($inboxChild.WaitForExit(12000) -and $inboxChild.ExitCode -eq 0)
+    $inboxExited = $inboxChild.WaitForExit(12000)
+    if (-not $inboxExited -or $inboxChild.ExitCode -ne 0) { throw ('Inbox child failed; exit=' + $inboxChild.ExitCode + '; stderr=' + (Get-Content -LiteralPath (Join-Path $runRoot 'inbox-event.err') -Raw)) }
+    Assert-Test 'An inbox file event ends the background wait' $inboxExited
     $inboxOutput = Get-Content -LiteralPath (Join-Path $runRoot 'inbox-event.out') -Raw
     Assert-Test 'Inbox event names the new published task' ($inboxOutput -match '(EVENT|PENDING)\|new-event-001.json')
     & (Join-Path $scripts 'claim-task.ps1') -ConfigPath $configPath | Out-Null

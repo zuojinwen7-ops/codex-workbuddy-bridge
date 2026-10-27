@@ -50,6 +50,7 @@ try {
     Write-FixtureReview $baseline
     $startArguments = @('-NoProfile','-File',('"' + $watcherScript + '"'),'-BridgeRoot',('"' + $runRoot + '"'),'-WorkspaceRoot',('"' + $runRoot + '"'),'-ThreadId','11111111-1111-4111-8111-111111111111','-CodexExe',('"' + $codexExe + '"'),'-DryRun')
     $watcherProcess = Start-Process -FilePath $shellExe -ArgumentList $startArguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runRoot 'logs\stdout.txt') -RedirectStandardError (Join-Path $runRoot 'logs\stderr.txt')
+    $null = $watcherProcess.Handle
     Wait-EventCount 'started' 1 | Out-Null
     Start-Sleep -Milliseconds 1000
     Assert-Test 'Previously reviewed unchanged files are skipped on startup' (@((Read-Events) | Where-Object { $_.event -eq 'would_queue' }).Count -eq 0)
@@ -79,6 +80,7 @@ try {
     Assert-Test 'Review acknowledgement prevents redundant model calls' (@((Read-Events) | Where-Object { $_.event -eq 'would_queue' }).Count -eq $after)
 
     $duplicate = Start-Process -FilePath $shellExe -ArgumentList $startArguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runRoot 'logs\duplicate-stdout.txt') -RedirectStandardError (Join-Path $runRoot 'logs\duplicate-stderr.txt')
+    $null = $duplicate.Handle
     Assert-Test 'Second listener for the same bridge exits rather than duplicating dispatch' ($duplicate.WaitForExit(8000))
     Assert-Test 'DryRun never calls codex queue' (@((Read-Events) | Where-Object { $_.event -eq 'queued' }).Count -eq 0)
     [IO.File]::WriteAllText((Join-Path $runRoot 'watch-results.stop'),'isolated test finished')

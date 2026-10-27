@@ -7,10 +7,18 @@ param(
 $config = Get-BridgeConfig $ConfigPath
 $inbox = Join-Path $config.bridge_root 'inbox'
 function Get-PendingNames { return @(Get-ChildItem -LiteralPath $inbox -Filter '*.json' -File | Sort-Object Name | Select-Object -ExpandProperty Name) }
-$watcher = New-Object IO.FileSystemWatcher($inbox, '*.json')
-$watcher.NotifyFilter = [IO.NotifyFilters]::FileName -bor [IO.NotifyFilters]::LastWrite -bor [IO.NotifyFilters]::Size
+$hasher = [Security.Cryptography.SHA256]::Create()
+try { $mutexKey = ([BitConverter]::ToString($hasher.ComputeHash($script:BridgeUtf8.GetBytes($inbox.ToLowerInvariant())))).Replace('-','') }
+finally { $hasher.Dispose() }
+$mutex = New-Object Threading.Mutex($false, ('Local\CodexWorkBuddyInbox-' + $mutexKey))
+$ownsMutex = $false
+try { $ownsMutex = $mutex.WaitOne(0) } catch [Threading.AbandonedMutexException] { $ownsMutex = $true }
+if (-not $ownsMutex) { $mutex.Dispose(); Write-Output 'ALREADY_RUNNING|This queue already has an inbox watcher.'; return }
+$watcher = $null
 $eventId = 'BridgeInbox-' + [guid]::NewGuid().ToString('N')
 try {
+    $watcher = New-Object IO.FileSystemWatcher($inbox, '*.json')
+    $watcher.NotifyFilter = [IO.NotifyFilters]::FileName -bor [IO.NotifyFilters]::LastWrite -bor [IO.NotifyFilters]::Size
     $null = Register-ObjectEvent -InputObject $watcher -EventName Created -SourceIdentifier ($eventId + '-Created')
     $null = Register-ObjectEvent -InputObject $watcher -EventName Renamed -SourceIdentifier ($eventId + '-Renamed')
     $null = Register-ObjectEvent -InputObject $watcher -EventName Changed -SourceIdentifier ($eventId + '-Changed')
@@ -31,8 +39,10 @@ try {
     }
     Write-Output ('TIMEOUT|' + $TimeoutSeconds)
 } finally {
-    $watcher.EnableRaisingEvents = $false
+    if ($watcher) { $watcher.EnableRaisingEvents = $false }
     Get-EventSubscriber | Where-Object { $_.SourceIdentifier.StartsWith($eventId) } | Unregister-Event
     Get-Event | Where-Object { $_.SourceIdentifier.StartsWith($eventId) } | Remove-Event
-    $watcher.Dispose()
+    if ($watcher) { $watcher.Dispose() }
+    if ($ownsMutex) { $mutex.ReleaseMutex() }
+    $mutex.Dispose()
 }

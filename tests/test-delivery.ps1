@@ -20,6 +20,7 @@ function Read-Failures {
 }
 try {
     $watcherProcess = Start-Process -FilePath $shellExe -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runRoot 'logs\first.out') -RedirectStandardError (Join-Path $runRoot 'logs\first.err')
+    $null = $watcherProcess.Handle
     $deadline = [DateTime]::UtcNow.AddSeconds(20)
     while (@(Read-Failures).Count -eq 0 -and [DateTime]::UtcNow -lt $deadline -and -not $watcherProcess.HasExited) { Start-Sleep -Milliseconds 100 }
     if (@(Read-Failures).Count -ne 1) { throw 'Expected one recorded queue failure.' }
@@ -30,6 +31,7 @@ try {
     if (-not $watcherProcess.WaitForExit(8000) -or $watcherProcess.ExitCode -ne 0) { throw 'Watcher failed to stop gracefully.' }
     [IO.File]::Delete((Join-Path $runRoot 'watch-results.stop'))
     $watcherProcess = Start-Process -FilePath $shellExe -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runRoot 'logs\second.out') -RedirectStandardError (Join-Path $runRoot 'logs\second.err')
+    $null = $watcherProcess.Handle
     Start-Sleep -Milliseconds 2000
     if ($watcherProcess.HasExited -or @(Read-Failures).Count -ne 1) { throw 'Restart lost the no-retry delivery boundary.' }
     [IO.File]::WriteAllText((Join-Path $runRoot 'watch-results.stop'),'test stop', $utf8)

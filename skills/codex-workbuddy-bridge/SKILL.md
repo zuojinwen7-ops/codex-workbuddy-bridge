@@ -7,6 +7,8 @@ description: 通过已配置的共享文件队列让桌面 WorkBuddy 执行，�
 
 本 Skill 配合完整仓库脚本使用。先定位用户已初始化的 `bridge.local.json`，读取其中的工作区、队列、聊天绑定，以及运行目录 `ACCEPTANCE.md`。没有配置时按仓库 README 初始化，不猜测历史目录、聊天编号或另一套网关。
 
+WorkBuddy 需要预先选择承接项目/原生会话；work_dir 不会切换它。每套运行目录的结果回报去配置的 thread_id，不自动路由回每条任务的发起聊天。检查其他监听/跟进是否仍在验收同一队列；跨项目使用独立配置，双聊天回复不代表任务执行了两次。发布副本不自动同步其他聊天对原型的修改。
+
 ## 派工
 
 使用仓库 `scripts/submit-task.ps1`，传入对应 ConfigPath、真实 WorkDir、Instruction、AllowedScope、具体 Checks。保存返回 task_id；queued 仅表示入队。复杂任务交给 WorkBuddy 内部安排，不逐工具指挥。

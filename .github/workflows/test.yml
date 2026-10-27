@@ -21,4 +21,3 @@ jobs:
       - name: Queue and event tests (no model calls)
         shell: pwsh
         run: .\tests\run-tests.ps1
-

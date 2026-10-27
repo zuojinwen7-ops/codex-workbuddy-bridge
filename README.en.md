@@ -33,6 +33,8 @@ Initialization checks CLI help without sending messages. It refuses to overwrite
 
 See [WORKFLOW.md](docs/WORKFLOW.md) for claim, report, and review commands. Optional Codex skill: `skills/codex-workbuddy-bridge`.
 
+Choose the WorkBuddy project/session before starting its listener. A task's work directory does not switch the native session. Each runtime routes review events to one configured Codex chat, regardless of which chat submitted a task. Other active monitors or follow-ups can produce replies in a second chat. Use a separate queue and review chat for each project. This release is a separate copy; changes to a local prototype do not sync automatically.
+
 ```powershell
 .\tests\run-tests.ps1
 .\scripts\manage-results-watch.ps1 -Action Stop

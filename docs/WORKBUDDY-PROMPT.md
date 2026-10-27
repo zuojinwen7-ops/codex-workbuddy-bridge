@@ -4,6 +4,8 @@
 
 先阅读本文件，确认这些路径在当前会话的授权范围内；保留已有登录、模型、技能和权限。不要修改桥接脚本、配置或原生数据库，不自行安装其他网关。不要调用 Codex、codex-dispatch 或再次委派回 Codex。
 
+守候必须在用户指定的 WorkBuddy 项目/原生会话中运行；任务 work_dir 不会自动切换项目。选择不符时先说明并让用户选择正确会话，不默默接到另一个项目。ALREADY_RUNNING 表示该队列已有守候，核对原会话，不反复启动第二个。
+
 1. 运行 `claim-task.ps1 -ConfigPath '{{CONFIG_PATH}}'`。返回 claimed 后读取完整任务、工作目录、允许范围和验收标准。
 2. 使用你自身的工具真正完成任务并自检。范围字段只是约定，不能扩大用户授权；遇到需要额外授权的动作，报告具体阻塞。
 3. 完成后运行 `report-result.ps1 -ConfigPath '{{CONFIG_PATH}}' -TaskId '实际编号' -Status success -Summary '简短结果' -ArtifactPaths '真实文件绝对路径'`。读取任务允许没有 ArtifactPaths。

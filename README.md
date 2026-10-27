@@ -79,6 +79,8 @@ C:\Projects\demo\.agent-bridge\
 
 监听器以隐藏窗口运行。`doctor` 能检查文件配置与监听进程，不能证明 WorkBuddy 已在守候。WorkBuddy 的后台命令结束后是否能唤醒会话，取决于当前版本和会话能力，必须完成一次真实文件任务验证。
 
+**项目与回报聊天需要先选定。** WorkBuddy 应在你指定的项目/原生会话中启动守候；任务的 `work_dir` 不会自动替你切换 WorkBuddy 项目。每个运行目录的结果监听绑定一个 Codex 聊天 UUID，回报去该聊天，不按每条任务的发起聊天自动改路由。如果另一个项目的监听器或旧跟进任务也在验收，可能出现两个 Codex 聊天都回复。建议每个项目使用独立队列和指定回报聊天；只正常停止已确认属于该项目的重复监听。
+
 ### 3. 发出第一条任务
 
 ```powershell
@@ -125,5 +127,6 @@ Skill 在 [`skills/codex-workbuddy-bridge`](skills/codex-workbuddy-bridge/SKILL.
 - 结果文件中的 `executor` 是声明；共享目录无法认证执行模型，SHA-256 也不能证明执行来源或内容正确。
 - 结果监听去重状态在本机。删除状态文件可能导致重复投递；投递失败或不确定不会静默重发同一内容，需要人工核对。
 - 不自动关闭应用、修改 WorkBuddy 数据库、注入调试端口或绕过权限。新电脑、新版本、重新打开后的自动领取均需各自验收。
+- 本仓库是整理后的独立发布副本。原型在其他聊天中更新不会自动同步；需要比对变更并测试后再纳入。v0.1.0 不承诺自动选择 WorkBuddy 项目或把结果路由回每条任务的发起聊天。
 
 数据流和公开发布注意事项见 [SECURITY.md](SECURITY.md)。欢迎在 [Issues](https://github.com/zuojinwen7-ops/codex-workbuddy-bridge/issues) 提供去除个人信息的复现步骤。
